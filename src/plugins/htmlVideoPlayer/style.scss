@@ -38,6 +38,11 @@ video[controls]::-webkit-media-controls {
     -webkit-font-smoothing: antialiased;
     font-family: inherit;
     line-height: normal; /* Restore value. See -webkit-media-text-track-container 'line-height' */
+
+    /* Chromium drops native cues from fullscreen video on large (1440p/4K) displays once nothing
+       else is drawn over the video, i.e. when the OSD fades out. Forcing visibility keeps them
+       rendered (jellyfin-web#6728; workaround confirmed by several users in that issue). */
+    visibility: visible;
 }
 
 .htmlvideoplayer::-webkit-media-text-track-container {
