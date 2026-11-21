@@ -9,6 +9,15 @@ let subtitleSyncSlider;
 let subtitleSyncTextField;
 let subtitleSyncCloseButton;
 let subtitleSyncContainer;
+/**
+ * The offset actually applied, in seconds. The slider only covers [min, max], so it can't hold
+ * offsets typed into the text field beyond that range (jellyfin-web#3783): it just displays the
+ * nearest end while the real value lives here.
+ */
+let currentOffset = 0;
+
+/** Round away floating-point noise from repeated 0.1s steps (0.1 + 0.2 = 0.30000000000000004). */
+const roundOffset = value => Math.round(value * 1000) / 1000;
 
 function init(instance) {
     const parent = document.createElement('div');
@@ -72,22 +81,18 @@ function init(instance) {
         }
     };
 
-    function updateSubtitleOffset() {
-        const value = parseFloat(subtitleSyncSlider.value);
-        // set new offset
-        playbackManager.setSubtitleOffset(value, player);
-        // synchronize with textField value
-        subtitleSyncTextField.updateOffset(value);
-    }
-
-    subtitleSyncSlider.updateOffset = function (sliderValue) {
+    subtitleSyncSlider.updateOffset = function (offset) {
         // default value is 0s = 0ms
-        this.value = sliderValue === undefined ? 0 : sliderValue;
-
-        updateSubtitleOffset();
+        currentOffset = roundOffset(offset === undefined || Number.isNaN(offset) ? 0 : offset);
+        playbackManager.setSubtitleOffset(currentOffset, player);
+        subtitleSyncTextField.updateOffset(currentOffset);
+        // The slider shows the offset clamped to its range; the text field shows the real value.
+        const min = parseFloat(this.min);
+        const max = parseFloat(this.max);
+        this.value = String(Math.min(max, Math.max(min, currentOffset)));
     };
 
-    subtitleSyncSlider.addEventListener('change', () => updateSubtitleOffset());
+    subtitleSyncSlider.addEventListener('change', () => subtitleSyncSlider.updateOffset(parseFloat(subtitleSyncSlider.value)));
 
     subtitleSyncSlider.getBubbleHtml = function (_, value) {
         return '<h1 class="sliderBubbleText">'
@@ -115,6 +120,7 @@ class SubtitleSync {
             playbackManager.disableShowingSubtitleOffset(player);
             playbackManager.setSubtitleOffset(0, player);
         }
+        currentOffset = 0;
         const elem = this.element;
         if (elem) {
             elem.parentNode.removeChild(elem);
@@ -135,9 +141,7 @@ class SubtitleSync {
                     // if no subtitle offset is defined or element has focus (offset being defined)
                     if (!(playbackManager.getPlayerSubtitleOffset(player) || subtitleSyncTextField.hasFocus)) {
                         // set default offset to '0' = 0ms
-                        subtitleSyncSlider.value = '0';
-                        subtitleSyncTextField.textContent = '0s';
-                        playbackManager.setSubtitleOffset(0, player);
+                        subtitleSyncSlider.updateOffset(0);
                     }
                     // show subtitle sync
                     subtitleSyncContainer.classList.remove('hide');
@@ -155,8 +159,8 @@ class SubtitleSync {
     update(offset) {
         this.toggle();
 
-        const value = parseFloat(subtitleSyncSlider.value) + offset;
-        subtitleSyncSlider.updateOffset(value);
+        // Step from the real offset, not the (possibly clamped) slider position.
+        subtitleSyncSlider.updateOffset(currentOffset + offset);
     }
 
     incrementOffset() {
