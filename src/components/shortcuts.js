@@ -235,7 +235,19 @@ function executeAction(card, target, action) {
     const serverId = item.ServerId;
     const type = item.Type;
 
-    const playableItemId = type === 'Program' ? item.ChannelId : item.Id;
+    let playableItemId = type === 'Program' ? item.ChannelId : item.Id;
+
+    // "Recently Added" shows the newest episode (or season) of a show. Pressing play there should
+    // continue the show from the user's next episode, not jump to whatever was added last
+    // (jellyfin-web#8496). Episodes the user has already started still resume where they left off.
+    // The desktop hover menu's play button sends Resume, so accept both.
+    if ((action === ItemAction.Play || action === ItemAction.Resume)
+        && (type === 'Episode' || type === 'Season')
+        && item.SeriesId
+        && !item.UserData.PlaybackPositionTicks
+        && itemsContainer?.getAttribute('data-playfromnextup') === 'true') {
+        playableItemId = item.SeriesId;
+    }
 
     if (item.MediaType === 'Photo' && action === ItemAction.Link) {
         action = ItemAction.Play;

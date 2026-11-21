@@ -973,6 +973,7 @@ function buildCard(index, item, apiClient, options) {
     const mediaTypeData = item.MediaType ? (' data-mediatype="' + item.MediaType + '"') : '';
     const collectionTypeData = item.CollectionType ? (' data-collectiontype="' + item.CollectionType + '"') : '';
     const channelIdData = item.ChannelId ? (' data-channelid="' + item.ChannelId + '"') : '';
+    const seriesIdData = item.SeriesId ? (' data-seriesid="' + item.SeriesId + '"') : '';
     const pathData = item.Path ? (' data-path="' + escapeHtml(item.Path) + '"') : '';
     const contextData = options.context ? (' data-context="' + options.context + '"') : '';
     const parentIdData = options.parentId ? (' data-parentid="' + options.parentId + '"') : '';
@@ -985,7 +986,7 @@ function buildCard(index, item, apiClient, options) {
         additionalCardContent += getHoverMenuHtml(item, action);
     }
 
-    return '<' + tagName + ' data-index="' + index + '"' + timerAttributes + actionAttribute + ' data-isfolder="' + (item.IsFolder || false) + '" data-serverid="' + (item.ServerId || options.serverId) + '" data-id="' + (item.Id || item.ItemId) + '" data-type="' + item.Type + '"' + mediaTypeData + collectionTypeData + channelIdData + pathData + positionTicksData + collectionIdData + playlistIdData + contextData + parentIdData + startDate + endDate + ' data-prefix="' + escapeHtml(prefix) + '" class="' + className + '"' + ariaLabelAttribute + '>' + cardImageContainerOpen + innerCardFooter + cardImageContainerClose + overlayButtons + additionalCardContent + cardScalableClose + outerCardFooter + cardBoxClose + '</' + tagName + '>';
+    return '<' + tagName + ' data-index="' + index + '"' + timerAttributes + actionAttribute + ' data-isfolder="' + (item.IsFolder || false) + '" data-serverid="' + (item.ServerId || options.serverId) + '" data-id="' + (item.Id || item.ItemId) + '" data-type="' + item.Type + '"' + mediaTypeData + collectionTypeData + channelIdData + seriesIdData + pathData + positionTicksData + collectionIdData + playlistIdData + contextData + parentIdData + startDate + endDate + ' data-prefix="' + escapeHtml(prefix) + '" class="' + className + '"' + ariaLabelAttribute + '>' + cardImageContainerOpen + innerCardFooter + cardImageContainerClose + overlayButtons + additionalCardContent + cardScalableClose + outerCardFooter + cardBoxClose + '</' + tagName + '>';
 }
 
 /**

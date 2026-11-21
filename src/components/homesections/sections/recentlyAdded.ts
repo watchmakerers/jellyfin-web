@@ -126,9 +126,9 @@ function renderLatestSection(
 
     if (options.enableOverflow) {
         html += '<div is="emby-scroller" class="padded-top-focusscale padded-bottom-focusscale" data-centerfocus="true">';
-        html += '<div is="emby-itemscontainer" class="itemsContainer scrollSlider focuscontainer-x">';
+        html += '<div is="emby-itemscontainer" class="itemsContainer scrollSlider focuscontainer-x" data-playfromnextup="true">';
     } else {
-        html += '<div is="emby-itemscontainer" class="itemsContainer focuscontainer-x padded-left padded-right vertical-wrap">';
+        html += '<div is="emby-itemscontainer" class="itemsContainer focuscontainer-x padded-left padded-right vertical-wrap" data-playfromnextup="true">';
     }
 
     if (options.enableOverflow) {
