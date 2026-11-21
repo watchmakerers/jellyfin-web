@@ -10,6 +10,7 @@ import {
 import { DASHBOARD_APP_PATHS, DASHBOARD_APP_ROUTES } from 'apps/dashboard/routes/routes';
 import { APP_ROUTES as MODERN_APP_ROUTES } from 'apps/modern/routes/routes';
 import { APP_ROUTES as LEGACY_APP_ROUTES } from 'apps/legacy/routes/routes';
+import { APP_ROUTES as HALCYON_APP_ROUTES } from 'apps/halcyon/routes/routes';
 import { WIZARD_APP_ROUTES } from 'apps/wizard/routes/routes';
 import AppHeader from 'components/AppHeader';
 import Backdrop from 'components/Backdrop';
@@ -19,11 +20,16 @@ import { createRouterHistory } from 'components/router/routerHistory';
 import appTheme from 'themes';
 import { ThemeStorageManager } from 'themes/themeStorageManager';
 
+function getAppRoutes() {
+    if (layoutManager.halcyon) return HALCYON_APP_ROUTES;
+    return layoutManager.modern ? MODERN_APP_ROUTES : LEGACY_APP_ROUTES;
+}
+
 const router = createHashRouter([
     {
         element: <RootAppLayout />,
         children: [
-            ...(layoutManager.modern ? MODERN_APP_ROUTES : LEGACY_APP_ROUTES),
+            ...getAppRoutes(),
             ...DASHBOARD_APP_ROUTES,
             ...WIZARD_APP_ROUTES,
             {

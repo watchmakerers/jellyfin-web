@@ -22,12 +22,17 @@ class LayoutManager {
     mobile = false;
     desktop = false;
     modern = false;
+    /** The Halcyon 10-foot app. It also turns on the TV layout so shared pages get TV focus handling. */
+    halcyon = false;
 
     setLayout(layout = '', save = true) {
         const layoutValue = (!layout || layout === LayoutMode.Auto) ? '' : layout;
         const isLegacyLayout = LegacyLayoutModes.has(layoutValue);
-        // Normalize layout mode to the base mode (e.g. 'mobile-legacy' -> 'mobile')
-        const normalizedLayout = layoutValue.split('-')[0];
+        this.halcyon = layoutValue === LayoutMode.Halcyon;
+        document.documentElement.classList.toggle('layout-halcyon', this.halcyon);
+        // Normalize layout mode to the base mode (e.g. 'mobile-legacy' -> 'mobile').
+        // Halcyon runs on top of the TV layout.
+        const normalizedLayout = this.halcyon ? LayoutMode.Tv : layoutValue.split('-')[0];
 
         if (!layoutValue) {
             this.autoLayout();
@@ -66,6 +71,13 @@ class LayoutManager {
     }
 
     init() {
+        // Allow launchers (e.g. a kiosk shortcut) to pick the layout with ?layout=halcyon
+        const requested = new URLSearchParams(window.location.search).get('layout');
+        if (requested && Object.values(LayoutMode).includes(requested)) {
+            this.setLayout(requested, true);
+            return;
+        }
+
         const saved = this.getSavedLayout();
         if (saved) {
             this.setLayout(saved, false);

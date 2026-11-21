@@ -397,6 +397,13 @@ export default tseslint.config(
 
     // Service worker
     {
+        files: [ 'src/apps/halcyon/**/*.tsx' ],
+        rules: {
+            // Remote-driven screens with a handful of buttons; memoizing every handler adds noise, not speed.
+            'react/jsx-no-bind': 'off'
+        }
+    },
+    {
         files: [ 'src/serviceworker.js' ],
         languageOptions: {
             globals: {

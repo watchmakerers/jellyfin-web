@@ -1,0 +1,768 @@
+// Halcyon: a 10-foot, Media Center-style front end. Sizes are in vh/vw so the
+// screen scales like the desktop app (which lays everything out in % of the window).
+
+$white: #fff;
+$soft: rgba(200, 222, 255, 0.78);
+$dim: rgba(160, 190, 235, 0.55);
+$glow: #7fd0ff;
+$ease: cubic-bezier(0.22, 0.8, 0.3, 1);
+
+// The legacy header/drawer belong to other layouts; Halcyon screens draw their own chrome.
+.halcyon-screen {
+    .skinHeader,
+    .mainDrawer,
+    .mainDrawerHandle {
+        display: none !important;
+    }
+
+    &,
+    body {
+        background: #052856;
+        overflow: hidden;
+    }
+
+    .backgroundContainer,
+    .backdropContainer {
+        display: none;
+    }
+}
+
+// Shared legacy pages (settings, search, login) get the Halcyon backdrop too.
+.layout-halcyon body {
+    background:
+        radial-gradient(ellipse 45vw 45vw at 60% 102%, rgba(80, 200, 255, 0.55), transparent 70%),
+        linear-gradient(to bottom, #052856 0%, #0a3462 35%, #1e568c 62%, #1c6eb4 88%, #1e7dc3 100%) fixed;
+    font-family: 'Segoe UI', 'Noto Sans', 'Open Sans', sans-serif;
+}
+
+.halcyon {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    // `clip`, not `hidden`: a hidden box is still scrollable by focus()/scrollIntoView(), and the
+    // tile strip and ribbons overflow it, so clicking an edge tile used to shift the whole screen.
+    overflow: clip;
+    color: $white;
+    font-family: 'Segoe UI', 'Noto Sans', 'Open Sans', sans-serif;
+    font-weight: 300;
+    user-select: none;
+    cursor: default;
+
+    button {
+        appearance: none;
+        background: none;
+        border: 0;
+        color: inherit;
+        font: inherit;
+        padding: 0;
+        cursor: pointer;
+        text-align: inherit;
+    }
+
+    img {
+        display: block;
+    }
+}
+
+.halcyon-glow {
+    text-shadow: 0 0 1.2vh rgba(127, 208, 255, 0.55), 0 0 0.3vh rgba(150, 215, 255, 0.4);
+}
+
+.halcyon-dim {
+    color: $dim;
+}
+
+// ---------------------------------------------------------------- backdrop ---
+.halcyon-backdrop {
+    position: absolute;
+    inset: 0;
+    // Navy at the top, hazy blue in the middle, bright cyan pool along the bottom.
+    background:
+        radial-gradient(ellipse 25vw 25vw at 86% 95%, rgba(120, 220, 255, 0.35), transparent 70%),
+        radial-gradient(ellipse 45vw 45vw at 60% 102%, rgba(80, 200, 255, 0.67), transparent 70%),
+        radial-gradient(ellipse 42vw 42vw at 62% 48%, rgba(90, 140, 185, 0.27), transparent 70%),
+        linear-gradient(to bottom, #052856 0%, #0a3462 35%, #1e568c 62%, #1c6eb4 88%, #1e7dc3 100%);
+
+    // Light ribbons sweeping across the lower half.
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        left: -20vw;
+        right: -20vw;
+        height: 40vh;
+        border-radius: 50%;
+        border-top: 0.25vh solid rgba(170, 225, 255, 0.22);
+        filter: blur(0.15vh);
+        animation: halcyon-ribbon 22s ease-in-out infinite alternate;
+    }
+
+    &::before {
+        top: 58vh;
+        transform: rotate(-4deg);
+    }
+
+    &::after {
+        top: 64vh;
+        transform: rotate(-7deg);
+        border-top-color: rgba(170, 225, 255, 0.12);
+        animation-duration: 31s;
+    }
+}
+
+@keyframes halcyon-ribbon {
+    from { translate: -3vw 0; }
+    to { translate: 3vw -2vh; }
+}
+
+.halcyon-backdrop-art {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center top;
+    opacity: 0.22;
+    mask-image: linear-gradient(to bottom, #000 40%, transparent 95%);
+}
+
+.halcyon-dot {
+    position: absolute;
+    border-radius: 50%;
+    translate: -50% -50%;
+    background: radial-gradient(circle, rgba(170, 225, 255, 0.5) 0%, rgba(170, 225, 255, 0.2) 70%, transparent 100%);
+}
+
+// ------------------------------------------------------------------ chrome ---
+.halcyon-chrome {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 12vh;
+    z-index: 3;
+}
+
+.halcyon-brand {
+    position: absolute;
+    right: 3vw;
+    top: 2.9vh;
+    text-align: right;
+
+    time {
+        display: block;
+        font-size: 2vh;
+        font-weight: 400;
+        color: rgba(220, 235, 255, 0.82);
+        margin-top: 0.4vh;
+    }
+}
+
+.halcyon-wordmark {
+    display: flex;
+    align-items: center;
+    gap: 0.8vw;
+    font-size: 2.6vh;
+    font-weight: 400;
+    text-shadow: 0 0 0.8vh rgba(127, 208, 255, 0.45);
+
+    b {
+        font-weight: 600;
+        margin-right: -0.4vw;
+    }
+
+    img {
+        width: 4.2vh;
+        height: 4.2vh;
+        filter: drop-shadow(0 0 0.6vh rgba(127, 208, 255, 0.6));
+    }
+}
+
+.halcyon-back {
+    position: absolute;
+    left: 3.5vw;
+    top: 5vh;
+    translate: -50% -50%;
+    width: 5.2vh;
+    height: 5.2vh;
+    border-radius: 50% !important;
+    border: 0.3vh solid rgba(220, 235, 255, 0.82) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    display: grid;
+    place-items: center;
+    transition: background 0.2s, box-shadow 0.2s;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.25) !important;
+        box-shadow: 0 0 1.5vh rgba(127, 208, 255, 0.6);
+    }
+
+    svg {
+        width: 70%;
+        fill: none;
+        stroke: rgba(220, 235, 255, 0.95);
+        stroke-width: 2.6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+}
+
+.halcyon-content {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: clip;
+}
+
+.halcyon-status {
+    position: absolute;
+    right: 5vw;
+    bottom: 3vh;
+    z-index: 3;
+    font-size: 2.2vh;
+    color: $soft;
+}
+
+.halcyon-title {
+    font-size: 5.5vh;
+    font-weight: 300;
+    margin: 0;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.halcyon-empty {
+    font-size: 3.5vh;
+    color: $soft;
+    margin: 15vh 0 0;
+}
+
+.halcyon-placeholder {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2vh 13%;
+    padding: 12% 4%;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+
+    span {
+        height: max(1px, 0.25vh);
+        background: linear-gradient(90deg, transparent, rgba(200, 230, 255, 0.24), transparent);
+    }
+}
+
+// -------------------------------------------------------------- start menu ---
+.halcyon-start {
+    position: absolute;
+    inset: 0;
+
+    > * {
+        transition: top 0.26s $ease, left 0.26s $ease, opacity 0.26s $ease, translate 0.5s $ease;
+    }
+
+    &:not(.is-in) > .halcyon-menu-label {
+        translate: 25vw 0;
+        opacity: 0 !important;
+    }
+
+    &:not(.is-in) .halcyon-start-word {
+        opacity: 0;
+    }
+}
+
+// The big ghosted "start".
+.halcyon-start-word {
+    position: absolute;
+    left: 2.3vw;
+    width: 29vw;
+    top: 17vh;
+    height: 30vh;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    font-size: 21.5vh;
+    font-weight: 300;
+    line-height: 1;
+    color: rgba(150, 180, 210, 0.37);
+    letter-spacing: -0.03em;
+    transition: opacity 0.8s ease;
+}
+
+.halcyon-menu-label {
+    position: absolute;
+    translate: 0 -50%;
+    font-size: 4.4vh !important;
+    font-weight: 600 !important;
+    color: rgb(205, 222, 240) !important;
+    text-shadow: 0 0 0.6vh rgba(150, 210, 255, 0.3);
+    white-space: nowrap;
+
+    &.is-focused {
+        color: $white !important;
+        text-shadow: 0 0 1.4vh rgba(150, 210, 255, 0.8), 0 0 0.4vh rgba(150, 210, 255, 0.6);
+    }
+}
+
+.halcyon-strip {
+    position: absolute;
+    left: 0;
+    right: 0;
+    animation: halcyon-strip-in 0.3s $ease;
+}
+
+@keyframes halcyon-strip-in {
+    from { opacity: 0; translate: 0 -1.5vh; }
+}
+
+.halcyon-strip-slot {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    transition: left 0.26s $ease, width 0.26s $ease;
+}
+
+// The focused start-menu tile: a pane of glass, caption top right, covers along the bottom.
+.halcyon-tile {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: 0.12vh solid rgba(220, 238, 255, 0.9) !important;
+    border-radius: 0.4vh;
+    background: linear-gradient(to bottom, rgba(150, 185, 215, 0.92), rgba(80, 120, 165, 0.82) 42%, rgba(40, 85, 140, 0.78)) !important;
+    box-shadow: 0.3vh 0.8vh 1.2vh rgba(0, 15, 40, 0.35);
+    overflow: hidden;
+    animation: halcyon-pop 0.32s $ease;
+
+    // Glossy top half.
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 1px 1px 55% 1px;
+        border-radius: 0.3vh;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0));
+        pointer-events: none;
+    }
+}
+
+@keyframes halcyon-pop {
+    0% { scale: 0.97; }
+    55% { scale: 1.03; }
+    100% { scale: 1; }
+}
+
+.halcyon-tile-caption {
+    position: absolute;
+    top: 8%;
+    right: 7%;
+    left: 4%;
+    text-align: right;
+    font-size: 3.8vh;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    direction: rtl;     // elide on the left, like the desktop app
+    text-shadow: 0 0 1vh rgba(150, 210, 255, 0.7);
+}
+
+.halcyon-tile-covers {
+    position: absolute;
+    left: 7%;
+    right: 3%;
+    top: 48%;
+    height: 36%;
+    display: flex;
+    gap: 0.4vh;
+    overflow: hidden;
+
+    img,
+    .halcyon-cover-blank {
+        height: 100%;
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+        flex: none;
+        box-shadow: 0 0.3vh 0.6vh rgba(0, 10, 40, 0.4);
+    }
+
+    .is-square {
+        aspect-ratio: 1;
+    }
+
+    .halcyon-placeholder {
+        padding: 4% 2%;
+    }
+}
+
+.halcyon-cover-blank {
+    display: block;
+    background: rgba(60, 110, 190, 0.55);
+}
+
+.halcyon-side-tile {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+
+    &:hover .halcyon-side-caption {
+        color: $white;
+    }
+}
+
+.halcyon-side-caption {
+    margin-top: 12%;
+    font-size: 3.2vh;
+    font-weight: 400;
+    color: rgba(200, 218, 236, 0.8);
+    text-shadow: 0 0 0.5vh rgba(150, 210, 255, 0.3);
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.halcyon-side-art {
+    margin-top: 3%;
+    height: 45%;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    opacity: 0.55;
+
+    img {
+        height: 100%;
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+
+        &.is-square {
+            aspect-ratio: 1;
+        }
+    }
+}
+
+// ----------------------------------------------------------------- gallery ---
+.halcyon-gallery {
+    position: absolute;
+    inset: 9vh 0 0 6vw;
+}
+
+.halcyon-pivots {
+    display: flex;
+    gap: 3vw;
+    margin-top: 1.5vh;
+    height: 4.5vh;
+    align-items: center;
+
+    button {
+        font-size: 2.8vh;
+        color: $dim;
+        padding: 0.4vh 0.8vw !important;
+        margin-left: -0.8vw !important;
+        border-radius: 0.4vh;
+        border: 1px solid transparent !important;
+        transition: color 0.2s;
+
+        &:hover {
+            color: $soft;
+        }
+
+        &.is-on {
+            color: $glow;
+            font-weight: 400;
+        }
+
+        &.is-focused {
+            border-color: rgba(170, 220, 255, 0.8) !important;
+            background: rgba(255, 255, 255, 0.12) !important;
+        }
+    }
+
+    &.is-large button {
+        font-size: 3.2vh;
+    }
+}
+
+.halcyon-grid {
+    position: absolute;
+    left: 0;
+    display: grid;
+    grid-auto-flow: column;
+    gap: 1.8vh;
+    transition: transform 0.3s $ease;
+}
+
+.halcyon-cover {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: scale 0.22s $ease, box-shadow 0.22s;
+
+    img,
+    .halcyon-cover-blank {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .halcyon-cover-blank {
+        position: relative;
+
+        b {
+            position: absolute;
+            inset: auto 0 0;
+            padding: 0.6vh;
+            font-size: 1.8vh;
+            font-weight: 400;
+            background: rgba(0, 20, 50, 0.65);
+        }
+    }
+
+    &.is-focused {
+        z-index: 2;
+        scale: 1.14;
+        box-shadow: 0 0.6vh 1.6vh rgba(0, 10, 40, 0.6), 0 0 0 0.25vh rgba(150, 215, 255, 0.85), 0 0 2vh rgba(127, 208, 255, 0.55);
+    }
+}
+
+.halcyon-group {
+    position: absolute;
+    bottom: calc(100% + 1vh);
+    left: 0;
+    font-size: 2.2vh;
+    font-weight: 400;
+    color: $glow;
+    white-space: nowrap;
+}
+
+.halcyon-check {
+    position: absolute;
+    top: 0.6vh;
+    right: 0.6vh;
+    width: 3vh;
+    height: 3vh;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    display: grid;
+    place-items: center;
+    font-size: 1.8vh;
+    font-weight: 700;
+}
+
+.halcyon-progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 0.4vh;
+    background: $glow;
+    box-shadow: 0 0 0.6vh $glow;
+}
+
+.halcyon-gallery-info {
+    position: absolute;
+    left: 0;
+    right: 6vw;
+}
+
+.halcyon-gallery-name {
+    font-size: 4vh;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.halcyon-gallery-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 2.4vh;
+    color: $soft;
+    margin-top: 0.4vh;
+}
+
+// ----------------------------------------------------------------- details ---
+.halcyon-details {
+    position: absolute;
+    inset: 15vh 8vw 6vh;
+    display: flex;
+    gap: 5vw;
+}
+
+.halcyon-details-art {
+    flex: none;
+    margin-top: 5vh;
+    height: 55vh;
+    aspect-ratio: 2 / 3;
+    box-shadow: 0 1vh 3vh rgba(0, 10, 40, 0.55);
+    background: rgba(60, 110, 190, 0.4);
+
+    .is-wide & {
+        height: 27.5vh;
+        aspect-ratio: 16 / 9;
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.halcyon-details-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.halcyon-sup {
+    font-size: 2.8vh;
+    color: $glow;
+    height: 4vh;
+}
+
+.halcyon-details .halcyon-title {
+    margin-top: 0;
+}
+
+.halcyon-meta {
+    font-size: 2.8vh;
+    color: $soft;
+    margin-top: 0.5vh;
+}
+
+.halcyon-overview {
+    font-size: 2.6vh;
+    line-height: 1.45;
+    color: $soft;
+    margin: 2.5vh 0 0;
+    max-height: 22vh;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+
+    &.is-small {
+        font-size: 2.4vh;
+        -webkit-line-clamp: 5;
+    }
+}
+
+.halcyon-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5vh;
+    margin-top: auto;
+    margin-bottom: 4vh;
+}
+
+.halcyon-button {
+    width: 26vw;
+    height: 6vh;
+    padding: 0 1vw !important;
+    border-radius: 0.4vh;
+    border: 1px solid rgba(170, 220, 255, 0.24) !important;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02)) !important;
+    font-size: 2.8vh;
+    color: $soft !important;
+    transition: all 0.18s $ease;
+
+    &.is-focused {
+        color: $white !important;
+        border: 2px solid rgba(170, 220, 255, 0.9) !important;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.07)) !important;
+        box-shadow: 0 0 1.6vh rgba(127, 208, 255, 0.45);
+    }
+}
+
+// --------------------------------------------------------- series / album ---
+.halcyon-series {
+    position: absolute;
+    inset: 10vh 8vw 4vh;
+
+    .halcyon-meta {
+        position: absolute;
+        top: 8vh;
+    }
+}
+
+.halcyon-series-poster {
+    position: absolute;
+    top: 14vh;
+    left: 0;
+    height: 50vh;
+    aspect-ratio: 2 / 3;
+    box-shadow: 0 1vh 3vh rgba(0, 10, 40, 0.55);
+    background: rgba(60, 110, 190, 0.4);
+
+    &.is-square {
+        aspect-ratio: 1;
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.halcyon-series-body {
+    position: absolute;
+    top: 10vh;
+    left: calc(33.3vh + 4vw);
+    right: 0;
+
+    .is-album & {
+        left: calc(50vh + 4vw);
+        top: 14vh;
+    }
+}
+
+.halcyon-list {
+    list-style: none;
+    margin: 3vh 0 0;
+    padding: 0;
+    height: calc(5.8vh * 8);
+    overflow: hidden;
+
+    .is-album & {
+        height: calc(5.8vh * 9);
+        margin-top: 0;
+    }
+
+    li {
+        height: 5.8vh;
+        translate: 0 calc(var(--scroll, 0) * -5.8vh);
+        transition: translate 0.25s $ease;
+    }
+
+    button {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: grid !important;
+        grid-template-columns: 3.4vw 1fr auto;
+        align-items: center;
+        padding: 0 1vw !important;
+        border-radius: 0.4vh;
+        border: 1px solid transparent !important;
+        font-size: 2.6vh;
+        color: $soft !important;
+
+        &.is-focused {
+            color: $white !important;
+            border-color: rgba(170, 220, 255, 0.8) !important;
+            background: linear-gradient(to bottom, rgba(120, 190, 255, 0.35), rgba(60, 130, 230, 0.24)) !important;
+        }
+
+        .halcyon-progress {
+            left: 4.4vw;
+            max-width: calc(100% - 13vw);
+        }
+    }
+}
+
+.halcyon-list-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -13,12 +13,15 @@ export const enum LayoutMode {
     /** The legacy mobile layout. */
     MobileLegacy = 'mobile-legacy',
     /** The TV layout. */
-    Tv = 'tv'
+    Tv = 'tv',
+    /** The Halcyon 10-foot layout (Media Center style), built on top of the TV layout. */
+    Halcyon = 'halcyon'
 };
 
 /** The layout modes that use the legacy app. */
 export const LegacyLayoutModes = new Set([
     LayoutMode.DesktopLegacy,
     LayoutMode.MobileLegacy,
-    LayoutMode.Tv
+    LayoutMode.Tv,
+    LayoutMode.Halcyon
 ]);
